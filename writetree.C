@@ -22,14 +22,38 @@ void writetree(std::string filename)
   Float_t treew;
   Double_t random;
   Int_t ev;
-  t1->Branch("aj",&aj,"aj/F");
-  t1->Branch("deltaPhi",&deltaPhi,"deltaPhi/F");
-  t1->Branch("ev",&ev,"ev/I");
+  t1->Branch("aj",&aj,"aj/F"); //first branch
+  t1->Branch("deltaPhi",&deltaPhi,"deltaPhi/F"); //second branch
+  t1->Branch("ev",&ev,"ev/I"); //third branch
   // fill the tree
-  for (Int_t i=0; i<10000; i++){
-    gRandom->Rannor(aj,deltaPhi);
-    trew = aj*aj + deltaPhi*deltaPhi;
-    random = gRandom->Rndm();
+  for(Int_t jI = 0; jI < nJt_; jI++){
+    //get leading jet
+    if(genJtPt_[jI] > tempLeadingJtPt_){
+      tempSubleadingJtPt_ = tempLeadingJtPt_;
+      tempSubleadingJtPhi_ = tempLeadingJtPhi_;
+
+      tempLeadingJtPt_ = genJtPt_[jI];
+      tempLeadingJtPhi_ = genJtPhi_[jI];
+    }
+    //get subleading jet
+    else if(genJtPt_[jI] >  tempSubleadingJtPt_){
+      tempSubleadingJtPt_ = genJtPt_[jI];
+      tempSubleadingJtPhi_ = genJtPhi_[jI];
+    }
+  }
+
+  if(tempLeadingJtPt_ < 120.) continue;
+  if(tempSubleadingJtPt_ < 30.) continue;
+
+  Float_t deltaPhi = tempLeadingJtPhi_ - tempSubleadingJtPhi_;
+
+  if(deltaPhi > TMath::Pi()) deltaPhi -= 2*TMath::Pi();
+  else if(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
+
+  if(TMath::Abs(deltaPhi) < 7.*TMath::Pi()/8.) continue;
+
+  Float_t aj = (tempLeadingJtPt_ - tempSubleadingJtPt_)/(tempLeadingJtPt_ + tempSubleadingJtPt_);
+
     ev = i;
     t1.Fill();
   }
