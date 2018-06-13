@@ -11,7 +11,7 @@ void writetree(std::string filename)
 {
   std::cout << filename << std::endl;
   TFile *f = new TFile(filename.c_str(),"recreate");
-  TTree t1 = ("t1","a simple Tree with simple variables");
+  TTree *t1 = new TTree("t1","a root tree");
   const Int_t nmaxJt=500;
   Int_t nJt_;
   Float_t genJtPt_[nmaxJt];
@@ -22,6 +22,13 @@ void writetree(std::string filename)
   Float_t treew;
   Double_t random;
   Int_t ev;
+
+  Float_t tempLeadingJtPt_ = -999.;
+  Float_t tempSubleadingJtPt_ = -999.;
+
+  Float_t tempLeadingJtPhi_ = -999.;
+  Float_t tempSubleadingJtPhi_ = -999.;
+
   t1->Branch("aj",&aj,"aj/F"); //first branch
   t1->Branch("deltaPhi",&deltaPhi,"deltaPhi/F"); //second branch
   t1->Branch("ev",&ev,"ev/I"); //third branch
@@ -40,12 +47,11 @@ void writetree(std::string filename)
       tempSubleadingJtPt_ = genJtPt_[jI];
       tempSubleadingJtPhi_ = genJtPhi_[jI];
     }
-  }
 
   if(tempLeadingJtPt_ < 120.) continue;
   if(tempSubleadingJtPt_ < 30.) continue;
 
-  Float_t deltaPhi = tempLeadingJtPhi_ - tempSubleadingJtPhi_;
+  deltaPhi = tempLeadingJtPhi_ - tempSubleadingJtPhi_;
 
   if(deltaPhi > TMath::Pi()) deltaPhi -= 2*TMath::Pi();
   else if(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
@@ -54,10 +60,10 @@ void writetree(std::string filename)
 
   Float_t aj = (tempLeadingJtPt_ - tempSubleadingJtPt_)/(tempLeadingJtPt_ + tempSubleadingJtPt_);
 
-    ev = i;
-    t1.Fill();
+    ev = jI;
+    t1->Fill();
   }
   // save the Tree head; the file will be automatically closed
   // when going out of the function scope
-  t1.Write();
+  t1->Write();
 }
