@@ -6,6 +6,7 @@
 #include "TH1F.h"
 #include "TPad.h"
 #include "TMath.h"
+#include "TCanvas.h"
 
 void readtree(std::string filename)
 {
@@ -29,6 +30,7 @@ void readtree(std::string filename)
   TH1F* hist_p3 = new TH1F("hgenJtPhi", "JtPhi distribution",100,-4,4);
   TH1F* hist_p4 = new TH1F("hgenJtEta", "JtEta distribution",100,-4,4);
   TH1F* hist_p5 = new TH1F("aj_h", ";A_{J};Counts", 100, 0, 1);
+  TH1F* hist_p6 = new TH1F("deltaPhi_h",";D_{J};Counts",200, 0, TMath::Pi());
 
   //read all entries and fill the histograms
   Int_t nentries = (Int_t)t1->GetEntries();
@@ -46,7 +48,7 @@ void readtree(std::string filename)
       hist_p2->Fill(genJtPt_[jI]);
       hist_p3->Fill(genJtPhi_[jI]);
       hist_p4->Fill(genJtEta_[jI]);
-
+      //get leading jet
       if(genJtPt_[jI] > tempLeadingJtPt_){
 	tempSubleadingJtPt_ = tempLeadingJtPt_;
 	tempSubleadingJtPhi_ = tempLeadingJtPhi_;
@@ -54,6 +56,7 @@ void readtree(std::string filename)
 	tempLeadingJtPt_ = genJtPt_[jI];
 	tempLeadingJtPhi_ = genJtPhi_[jI];
       }
+      //get subleading jet
       else if(genJtPt_[jI] >  tempSubleadingJtPt_){
 	tempSubleadingJtPt_ = genJtPt_[jI];
 	tempSubleadingJtPhi_ = genJtPhi_[jI];
@@ -64,8 +67,11 @@ void readtree(std::string filename)
     if(tempSubleadingJtPt_ < 30.) continue;
 
     Float_t deltaPhi = tempLeadingJtPhi_ - tempSubleadingJtPhi_;
+
     if(deltaPhi > TMath::Pi()) deltaPhi -= 2*TMath::Pi();
     else if(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
+
+    hist_p6->Fill(TMath::Abs(deltaPhi));
 
     if(TMath::Abs(deltaPhi) < 7.*TMath::Pi()/8.) continue;
 
@@ -75,15 +81,40 @@ void readtree(std::string filename)
   }
 
   TFile *w = new TFile("outfile.root","recreate");
-  hist_p->Write();
-  hist_p2->Write();
-  hist_p3->Write();
-  hist_p4->Write();
+  hist_p->Write("", TObject::kOverwrite);
+  hist_p2->Write("", TObject::kOverwrite);
+  hist_p3->Write("", TObject::kOverwrite);
+  hist_p4->Write("", TObject::kOverwrite);
   hist_p5->Write("", TObject::kOverwrite);
+  hist_p6->Write("", TObject::kOverwrite);
 
   w->Close();
   delete w;
 
+  TCanvas* canv_p = new TCanvas("hnJt","nJt distribution",400,400);
+  hist_p->Draw("hist e1");
+  canv_p->SaveAs("histogramnJt.pdf");
+
+  TCanvas* canv_p2 = new TCanvas("hgenJtEta","JtEta distribution",400,400);
+  hist_p2->Draw("hist e1");
+  canv_p2->SaveAs("histogramJtPt.pdf");
+
+  TCanvas* canv_p3 = new TCanvas("hgenJtPhi","JtPhi distribution",400,400);
+  hist_p3->Draw("hist e1");
+  canv_p3->SaveAs("histogramJtPhi.pdf");
+
+  TCanvas* canv_p4 = new TCanvas("hgenJtEta","JtEta distribution",400,400);
+  hist_p4->Draw("hist e1");
+  canv_p4->SaveAs("histogramJtEta.pdf");
+
+  TCanvas* canv_p5 = new TCanvas("aj_h","a_j distribution",400,400);
+  hist_p5->Draw("hist e1");
+  canv_p5->SaveAs("HistogramAJ.pdf");
+ 
+  TCanvas* canv_p6 = new TCanvas("dj_h","d_j distribution",400,400);
+  hist_p6->Draw("hist e1");
+  canv_p6->SaveAs("HistogramDeltaPhi.pdf");
+ 
   delete hist_p;
   delete hist_p2;
   delete hist_p3;
