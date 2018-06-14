@@ -12,6 +12,7 @@ void writetree(std::string filename)
   std::cout << filename << std::endl;
   TFile *f = new TFile(filename.c_str(),"recreate");
   TTree *t1 = new TTree("t1","a root tree");
+  TTree *t2 = (TTree*)f->Get("recoAndGenTreeR0p4EScheme");
   const Int_t nmaxJt=500;
   Int_t nJt_;
   Float_t genJtPt_[nmaxJt];
@@ -23,17 +24,21 @@ void writetree(std::string filename)
   Double_t random;
   Int_t ev;
 
-  Float_t tempLeadingJtPt_ = -999.;
-  Float_t tempSubleadingJtPt_ = -999.;
-
-  Float_t tempLeadingJtPhi_ = -999.;
-  Float_t tempSubleadingJtPhi_ = -999.;
-
   t1->Branch("aj",&aj,"aj/F"); //first branch
   t1->Branch("deltaPhi",&deltaPhi,"deltaPhi/F"); //second branch
   t1->Branch("ev",&ev,"ev/I"); //third branch
+  t2->SetBranchAddress("nJt",&nJt_);
   // fill the tree
-  for(Int_t jI = 0; jI < nJt_; jI++){
+  Int_t nentry = (Int_t)t2->GetEntries();
+  for(Int_t jI = 0; jI < nentry; jI++){
+    t2->GetEntry(jI);
+
+    Float_t tempLeadingJtPt_ = -999.;
+    Float_t tempSubleadingJtPt_ = -999.;
+
+    Float_t tempLeadingJtPhi_ = -999.;
+    Float_t tempSubleadingJtPhi_ = -999.;
+    
     //get leading jet
     if(genJtPt_[jI] > tempLeadingJtPt_){
       tempSubleadingJtPt_ = tempLeadingJtPt_;
