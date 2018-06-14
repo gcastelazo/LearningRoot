@@ -12,8 +12,8 @@ void writetree(std::string writename, std::string readname)
   std::cout << writename << std::endl;
   std::cout << readname << std::endl;
   TFile *f1 = new TFile(writename.c_str(),"recreate");
-  TFile *f2 = new TFile(readname.c_str(),"read");
   TTree *t1 = new TTree("t1","a root tree"); //tree to write
+  TFile *f2 = new TFile(readname.c_str(),"read");
   TTree *t2 = (TTree*)f2->Get("recoAndGenTreeR0p4EScheme"); //tree to read
   const Int_t nmaxJt=500;
   Int_t nJt_;
@@ -38,9 +38,9 @@ void writetree(std::string writename, std::string readname)
 
     Float_t tempLeadingJtPt_ = -999.;
     Float_t tempSubleadingJtPt_ = -999.;
-
     Float_t tempLeadingJtPhi_ = -999.;
     Float_t tempSubleadingJtPhi_ = -999.;
+
     //secondary loop
     for(Int_t kI = 0; kI < nJt_; kI++){ 
       //get leading jet
@@ -56,7 +56,7 @@ void writetree(std::string writename, std::string readname)
 	tempSubleadingJtPt_ = genJtPt_[kI];
 	tempSubleadingJtPhi_ = genJtPhi_[kI];
       }
-    
+    }
   if(tempLeadingJtPt_ < 120.) continue;
   if(tempSubleadingJtPt_ < 30.) continue;
 
@@ -66,16 +66,13 @@ void writetree(std::string writename, std::string readname)
   else if(deltaPhi < -TMath::Pi()) deltaPhi += 2*TMath::Pi();
 
   if(TMath::Abs(deltaPhi) < 7.*TMath::Pi()/8.) continue;
-
-  Float_t aj = (tempLeadingJtPt_ - tempSubleadingJtPt_)/(tempLeadingJtPt_ + tempSubleadingJtPt_);
-
+  aj = (tempLeadingJtPt_ - tempSubleadingJtPt_)/(tempLeadingJtPt_ + tempSubleadingJtPt_);
     ev = jI;
     t1->Fill();
   }
-  }
   // save the Tree head; the file will be automatically closed
   // when going out of the function scope
-
   f1->cd();
   t1->Write();
+
 }
