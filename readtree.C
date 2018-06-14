@@ -32,6 +32,8 @@ void readtree(std::string filename)
   TH1F* hist_p5 = new TH1F("aj_h", ";A_{J};Counts", 100, 0, 1);
   TH1F* hist_p6 = new TH1F("deltaPhi_h",";D_{J};Counts",200, 0, TMath::Pi());
 
+  hist_p->SetMarkerColorAlpha(kRed, 0.35);
+
   //read all entries and fill the histograms
   Int_t nentries = (Int_t)t1->GetEntries();
   for (Int_t i=0; i<nentries; i++) {
