@@ -1,0 +1,43 @@
+#include <iostream>
+#include "TFile.h"
+#include <string>
+#include "TTree.h"
+#include "TMath.h"
+#include "TF1.h"
+
+auto pi = TMath::Pi();
+//function code in C
+double single(double *x, double *par){
+  return pow(sin(pi*par[0]*x[0])/(pi*par[0]*x[0]),2);
+}
+
+double nslit0(double *x,double *par){
+  return pow(sin(pi*par[1]*x[0])/sin(pi*x[0]),2);
+}
+
+double nslit(double *x, double *par){
+  return single(x,par) * nslit0(x,par);
+}
+//this is the main program
+void slits(){
+  float r,ns;
+
+  //request user input
+  cout << "slit width / g ? ";
+  scanf("%f",&r);
+  cout << "# of slits? ";
+  scanf("%f",&ns);
+  cout <<"interference pattern for "<< ns
+       <<" slits, width/distance: "<<r<<endl;
+
+  // define fuction and set options
+  TF1 *Fnslit = new TF1("Fnslit",nslit,-5.001,5.,2);
+  Fnslit->SetNpx(500);
+
+  //set parameters
+  Fnslit->SetParameter(0,r);
+  Fnslit->SetParameter(1,ns);
+
+  //draw the interference pattern for a grid with n slits
+  Fnslit->Draw();
+}
