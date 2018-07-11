@@ -56,12 +56,6 @@ int test(const std::string inFileName)
     periphLowMult->Fit(g11,"R");
     periphLowMult->Fit(g21,"R+");
     g11->GetParameters(&par1[0]);
-    TF1 *g21 = new TF1("g2","gaus",2.2,3*TMath::Pi()/2.0);
-    TF1 *total1 = new TF1("mstotal","pol1+gaus",-TMath::Pi()/2.0,3*TMath::Pi()/2.0);
-    Double_t par1[4];
-    periphLowMult->Fit(g11,"R");
-    periphLowMult->Fit(g21,"R+");
-    g11->GetParameters(&par1[0]);
     g21->GetParameters(&par1[4]);
     total1->SetParameters(par1);
     periphLowMult->Fit(total1,"R+");
@@ -106,6 +100,7 @@ int test(const std::string inFileName)
     g23->GetParameters(&par3[4]);
     total3->SetParameters(par3);
     highMult_30_999->Fit(total3,"R+");
+    
     TCanvas *c4 = new TCanvas("c4","c4",500,500);
     highMult_35_999->Draw(); yTempl_35_999->Draw("C same");
     TF1 *g14 = new TF1("g1","pol2",-TMath::Pi()/2.0,2.1);
